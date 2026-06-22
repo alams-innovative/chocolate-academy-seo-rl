@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useState } from "react"
-import { uploadPresigned } from "@vercel/blob/client"
+import { put } from "@vercel/blob/client"
 import { Upload, X, FileText, ImageIcon, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -61,10 +61,25 @@ export function FileUpload({ value, onChange, folder, accept = "image/*", kind =
 
         const safeName = sanitizeFilename(file.name) || `newsletter-${Date.now()}.pdf`
         const yearFolder = new Date().getFullYear()
-        const blob = await uploadPresigned(`${folder}/${yearFolder}/${safeName}`, file, {
+        const pathname = `${folder}/${yearFolder}/${safeName}`
+        const tokenResponse = await fetch("/api/admin/newsletters/client-upload", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+          },
+          body: JSON.stringify({ pathname }),
+        })
+
+        const tokenData = await tokenResponse.json()
+
+        if (!tokenResponse.ok || !tokenData.clientToken) {
+          throw new Error(tokenData.error || "Failed to prepare upload.")
+        }
+
+        const blob = await put(pathname, file, {
+          token: tokenData.clientToken,
           access: "private",
           contentType: "application/pdf",
-          handleUploadUrl: "/api/admin/newsletters/client-upload",
           onUploadProgress: (event) => {
             setUploadProgress(Math.round(event.percentage))
           },

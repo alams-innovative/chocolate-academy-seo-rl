@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { uploadPresigned } from "@vercel/blob/client"
+import { put } from "@vercel/blob/client"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -158,10 +158,25 @@ export default function NewslettersAdminPage() {
         setUploadingFile(true)
 
         const safeName = sanitizeFilename(file.name) || `newsletter-${Date.now()}.pdf`
-        const blob = await uploadPresigned(`newsletters/${year}/${safeName}`, file, {
+        const pathname = `newsletters/${year}/${safeName}`
+        const tokenResponse = await fetch("/api/admin/newsletters/client-upload", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+          },
+          body: JSON.stringify({ pathname }),
+        })
+
+        const tokenData = await tokenResponse.json()
+
+        if (!tokenResponse.ok || !tokenData.clientToken) {
+          throw new Error(tokenData.error || "Failed to prepare upload.")
+        }
+
+        const blob = await put(pathname, file, {
+          token: tokenData.clientToken,
           access: "private",
           contentType: "application/pdf",
-          handleUploadUrl: "/api/admin/newsletters/client-upload",
           onUploadProgress: (event) => {
             setUploadProgress(Math.round(event.percentage))
           },
