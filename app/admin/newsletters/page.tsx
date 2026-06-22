@@ -51,8 +51,6 @@ const MONTHS = [
 ]
 const YEARS = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 1 + i)
 const MAX_PDF_SIZE_BYTES = 250 * 1024 * 1024
-const LARGE_UPLOAD_THRESHOLD_BYTES = 5 * 1024 * 1024
-
 function formatFileSize(bytes: number) {
   if (bytes < 1024 * 1024) {
     return `${(bytes / 1024).toFixed(1)} KB`
@@ -163,7 +161,6 @@ export default function NewslettersAdminPage() {
           access: "private",
           contentType: "application/pdf",
           handleUploadUrl: "/api/admin/newsletters/client-upload",
-          multipart: file.size > LARGE_UPLOAD_THRESHOLD_BYTES,
           onUploadProgress: (event) => {
             setUploadProgress(Math.round(event.percentage))
           },
@@ -319,9 +316,7 @@ export default function NewslettersAdminPage() {
                           <p className="text-sm font-medium text-[#3c2415]">
                             Upload a PDF up to {formatFileSize(MAX_PDF_SIZE_BYTES)}
                           </p>
-                          <p className="text-xs text-gray-500">
-                            Large PDFs upload directly to secure storage, so 100+ MB files are supported.
-                          </p>
+                          <p className="text-xs text-gray-500">Max {formatFileSize(MAX_PDF_SIZE_BYTES)}.</p>
                         </div>
                       </div>
 

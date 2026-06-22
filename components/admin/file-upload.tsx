@@ -16,8 +16,6 @@ interface FileUploadProps {
 }
 
 const MAX_PDF_SIZE_BYTES = 250 * 1024 * 1024
-const LARGE_UPLOAD_THRESHOLD_BYTES = 5 * 1024 * 1024
-
 function formatFileSize(bytes: number) {
   if (bytes < 1024 * 1024) {
     return `${(bytes / 1024).toFixed(1)} KB`
@@ -66,7 +64,6 @@ export function FileUpload({ value, onChange, folder, accept = "image/*", kind =
           access: "private",
           contentType: "application/pdf",
           handleUploadUrl: "/api/admin/newsletters/client-upload",
-          multipart: file.size > LARGE_UPLOAD_THRESHOLD_BYTES,
           onUploadProgress: (event) => {
             setUploadProgress(Math.round(event.percentage))
           },
@@ -144,9 +141,7 @@ export function FileUpload({ value, onChange, folder, accept = "image/*", kind =
           </Button>
 
           {kind === "pdf" ? (
-            <p className="text-xs text-muted-foreground">
-              Max {formatFileSize(MAX_PDF_SIZE_BYTES)}. Large PDFs upload directly to storage.
-            </p>
+            <p className="text-xs text-muted-foreground">Max {formatFileSize(MAX_PDF_SIZE_BYTES)}.</p>
           ) : null}
 
           {selectedFileName ? (
