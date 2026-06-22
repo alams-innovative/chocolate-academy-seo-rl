@@ -58,7 +58,7 @@ export async function POST(request: Request) {
       pdf_url = String(body.pdf_url || "")
       storage_type =
         body.storage_type ||
-        (pdf_url.startsWith("/") ? "local" : pdf_url.includes("blob.vercel-storage.com") ? "blob-private" : "external")
+        (pdf_url.startsWith("/") ? "local" : "external")
       download_name = String(body.download_name || "")
     } else {
       const formData = await request.formData()
@@ -68,7 +68,7 @@ export async function POST(request: Request) {
       description = String(formData.get("description") || "")
       is_active = formData.get("is_published") === "true"
       pdf_url = String(formData.get("pdf_url") || "")
-      storage_type = pdf_url.startsWith("/") ? "local" : pdf_url.includes("blob.vercel-storage.com") ? "blob-private" : "external"
+      storage_type = pdf_url.startsWith("/") ? "local" : "external"
       download_name = String(formData.get("download_name") || "")
     }
 

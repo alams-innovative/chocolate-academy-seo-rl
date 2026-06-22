@@ -175,7 +175,7 @@ export default function NewslettersAdminPage() {
 
         const blob = await put(pathname, file, {
           token: tokenData.clientToken,
-          access: "private",
+          access: "public",
           contentType: "application/pdf",
           onUploadProgress: (event) => {
             setUploadProgress(Math.round(event.percentage))
@@ -183,7 +183,7 @@ export default function NewslettersAdminPage() {
         })
 
         resolvedPdfUrl = blob.url
-        storageType = "blob-private"
+        storageType = "external"
         downloadName = file.name.trim() || downloadName
       }
 

@@ -78,7 +78,7 @@ export function FileUpload({ value, onChange, folder, accept = "image/*", kind =
 
         const blob = await put(pathname, file, {
           token: tokenData.clientToken,
-          access: "private",
+          access: "public",
           contentType: "application/pdf",
           onUploadProgress: (event) => {
             setUploadProgress(Math.round(event.percentage))
