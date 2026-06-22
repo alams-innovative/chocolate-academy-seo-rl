@@ -1,4 +1,5 @@
-import { type HandleUploadBody, handleUpload } from "@vercel/blob/client"
+import { issueSignedToken } from "@vercel/blob"
+import { type HandleUploadPresignedBody, handleUploadPresigned } from "@vercel/blob/client"
 import { NextResponse } from "next/server"
 import { requireAdmin } from "@/lib/api-guard"
 
@@ -10,22 +11,24 @@ export async function POST(request: Request) {
   if (auth instanceof NextResponse) return auth
 
   try {
-    const body = (await request.json()) as HandleUploadBody
-    const callbackUrl = new URL("/api/admin/newsletters/client-upload", request.url).toString()
+    const body = (await request.json()) as HandleUploadPresignedBody
 
-    const json = await handleUpload({
+    const json = await handleUploadPresigned({
       body,
       request,
-      onBeforeGenerateToken: async (pathname) => {
+      getSignedToken: async (pathname) => {
         if (!NEWSLETTER_PATH_PATTERN.test(pathname)) {
           throw new Error("Invalid newsletter upload path")
         }
 
         return {
-          allowedContentTypes: ["application/pdf"],
-          maximumSizeInBytes: MAX_NEWSLETTER_PDF_SIZE,
-          addRandomSuffix: true,
-          callbackUrl,
+          token: await issueSignedToken({
+            pathname,
+            operations: ["put"],
+            allowedContentTypes: ["application/pdf"],
+            maximumSizeInBytes: MAX_NEWSLETTER_PDF_SIZE,
+            validUntil: Date.now() + 60 * 60 * 1000,
+          }),
         }
       },
       onUploadCompleted: async () => {},

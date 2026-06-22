@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useState } from "react"
-import { upload } from "@vercel/blob/client"
+import { uploadPresigned } from "@vercel/blob/client"
 import { Upload, X, FileText, ImageIcon, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -16,6 +16,7 @@ interface FileUploadProps {
 }
 
 const MAX_PDF_SIZE_BYTES = 250 * 1024 * 1024
+const MAX_PDF_SIZE_LABEL = "250 MB"
 function formatFileSize(bytes: number) {
   if (bytes < 1024 * 1024) {
     return `${(bytes / 1024).toFixed(1)} KB`
@@ -60,7 +61,7 @@ export function FileUpload({ value, onChange, folder, accept = "image/*", kind =
 
         const safeName = sanitizeFilename(file.name) || `newsletter-${Date.now()}.pdf`
         const yearFolder = new Date().getFullYear()
-        const blob = await upload(`${folder}/${yearFolder}/${safeName}`, file, {
+        const blob = await uploadPresigned(`${folder}/${yearFolder}/${safeName}`, file, {
           access: "private",
           contentType: "application/pdf",
           handleUploadUrl: "/api/admin/newsletters/client-upload",
@@ -141,7 +142,7 @@ export function FileUpload({ value, onChange, folder, accept = "image/*", kind =
           </Button>
 
           {kind === "pdf" ? (
-            <p className="text-xs text-muted-foreground">Max {formatFileSize(MAX_PDF_SIZE_BYTES)}.</p>
+            <p className="text-xs text-muted-foreground">Max {MAX_PDF_SIZE_LABEL}.</p>
           ) : null}
 
           {selectedFileName ? (

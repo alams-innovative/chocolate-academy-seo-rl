@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { upload } from "@vercel/blob/client"
+import { uploadPresigned } from "@vercel/blob/client"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -51,6 +51,7 @@ const MONTHS = [
 ]
 const YEARS = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 1 + i)
 const MAX_PDF_SIZE_BYTES = 250 * 1024 * 1024
+const MAX_PDF_SIZE_LABEL = "250 MB"
 function formatFileSize(bytes: number) {
   if (bytes < 1024 * 1024) {
     return `${(bytes / 1024).toFixed(1)} KB`
@@ -157,7 +158,7 @@ export default function NewslettersAdminPage() {
         setUploadingFile(true)
 
         const safeName = sanitizeFilename(file.name) || `newsletter-${Date.now()}.pdf`
-        const blob = await upload(`newsletters/${year}/${safeName}`, file, {
+        const blob = await uploadPresigned(`newsletters/${year}/${safeName}`, file, {
           access: "private",
           contentType: "application/pdf",
           handleUploadUrl: "/api/admin/newsletters/client-upload",
@@ -314,9 +315,9 @@ export default function NewslettersAdminPage() {
                         </div>
                         <div className="space-y-1">
                           <p className="text-sm font-medium text-[#3c2415]">
-                            Upload a PDF up to {formatFileSize(MAX_PDF_SIZE_BYTES)}
+                            Upload a PDF up to {MAX_PDF_SIZE_LABEL}
                           </p>
-                          <p className="text-xs text-gray-500">Max {formatFileSize(MAX_PDF_SIZE_BYTES)}.</p>
+                          <p className="text-xs text-gray-500">Max {MAX_PDF_SIZE_LABEL}.</p>
                         </div>
                       </div>
 
