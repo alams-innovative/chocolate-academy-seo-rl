@@ -11,6 +11,7 @@ export async function POST(request: Request) {
 
   try {
     const body = (await request.json()) as HandleUploadBody
+    const callbackUrl = new URL("/api/admin/newsletters/client-upload", request.url).toString()
 
     const json = await handleUpload({
       body,
@@ -24,8 +25,10 @@ export async function POST(request: Request) {
           allowedContentTypes: ["application/pdf"],
           maximumSizeInBytes: MAX_NEWSLETTER_PDF_SIZE,
           addRandomSuffix: true,
+          callbackUrl,
         }
       },
+      onUploadCompleted: async () => {},
     })
 
     return NextResponse.json(json)
