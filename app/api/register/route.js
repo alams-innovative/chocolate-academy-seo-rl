@@ -27,6 +27,10 @@ export async function POST(req) {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
+    // Defense-in-depth: block file reads and URL fetches when resolving message
+    // content/attachments. Safe here since we only send plain text with no attachments.
+    disableFileAccess: true,
+    disableUrlAccess: true,
   })
 
   try {
